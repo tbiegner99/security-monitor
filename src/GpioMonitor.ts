@@ -29,11 +29,22 @@ export class GpioMonitor {
    */
   async initialize(): Promise<boolean> {
     try {
-      // Set up GPIO pin as input with both edge detection
-      this.gpio = new Gpio(this.gpioPin, "in", "both", {
+      // Determine GPIO options based on pull configuration
+      const pull = this.config.pull || "none";
+      const options: any = {
         activeLow: false,
         reconfigureDirection: false,
-      });
+      };
+
+      // Set pull-up/pull-down resistor
+      if (pull === "up") {
+        options.bias = "pull_up";
+      } else if (pull === "down") {
+        options.bias = "pull_down";
+      }
+
+      // Set up GPIO pin as input with both edge detection
+      this.gpio = new Gpio(this.gpioPin, "in", "both", options);
 
       // Create reporters
       this.reporters = ReporterFactory.createReporters(this.config.reporters);
@@ -41,10 +52,11 @@ export class GpioMonitor {
       // Read initial state
       this.lastValue = await this.readValue();
       const modeStr = this.momentary ? " (momentary mode)" : "";
+      const pullStr = pull !== "none" ? ` [pull-${pull}]` : "";
       console.log(
         `Initialized ${this.name} on GPIO ${
           this.gpioPin
-        }, initial state: ${this.getState(this.lastValue)}${modeStr}`
+        }, initial state: ${this.getState(this.lastValue)}${modeStr}${pullStr}`
       );
 
       // Set up watch for changes

@@ -52,6 +52,7 @@ Create or edit `config.json` in the project root:
       "name": "Front Door",
       "normallyHigh": true,
       "gpio": 17,
+      "pull": "up",
       "reporters": [
         {
           "type": "mqtt",
@@ -81,6 +82,10 @@ Create or edit `config.json` in the project root:
 - `momentary` (boolean, optional, default: `false`):
   - `true`: Only report when GPIO changes FROM normal state (e.g., button press, motion detected)
   - `false`: Report ALL state changes (both opening and closing)
+- `pull` (string, optional, default: `"none"`):
+  - `"up"`: Enable internal pull-up resistor (pin pulled to 3.3V)
+  - `"down"`: Enable internal pull-down resistor (pin pulled to GND)
+  - `"none"`: No internal pull resistor (use external resistor)
 - `reporters` (array): List of reporter configurations
 
 #### Reporter Types

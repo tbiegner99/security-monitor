@@ -173,15 +173,38 @@ class SetupWizard {
       false
     );
 
+    console.log("\nPull Resistor Configuration:");
+    console.log(
+      "  up   = Enable internal pull-up resistor (pin pulled to 3.3V)"
+    );
+    console.log(
+      "  down = Enable internal pull-down resistor (pin pulled to GND)"
+    );
+    console.log(
+      "  none = No internal pull resistor (use external resistor)"
+    );
+    const pullAnswer = await this.question(
+      "Pull resistor [up/down/none] (none): "
+    );
+    const pull = pullAnswer.toLowerCase() === "up" || pullAnswer.toLowerCase() === "down" 
+      ? pullAnswer.toLowerCase() as "up" | "down"
+      : "none";
+
     const reporters = await this.configureReporters();
 
-    return {
+    const config: MonitorConfig = {
       name,
       gpio,
       normallyHigh,
       momentary,
       reporters,
     };
+
+    if (pull !== "none") {
+      config.pull = pull as "up" | "down";
+    }
+
+    return config;
   }
 
   /**
@@ -220,6 +243,7 @@ class SetupWizard {
       console.log(`   GPIO: ${monitor.gpio}`);
       console.log(`   Normally High: ${monitor.normallyHigh}`);
       console.log(`   Momentary: ${monitor.momentary ?? false}`);
+      console.log(`   Pull: ${monitor.pull ?? "none"}`);
       console.log(
         `   Reporters: ${monitor.reporters.map((r) => r.type).join(", ")}`
       );

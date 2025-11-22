@@ -5,6 +5,7 @@
       "normallyHigh": true,
       "gpio": 17,
       "momentary": false,
+      "pull": "up",
       "reporters": [
         {
           "type": "mqtt",
@@ -21,6 +22,7 @@
       "normallyHigh": true,
       "gpio": 27,
       "momentary": true,
+      "pull": "up",
       "reporters": [
         {
           "type": "mqtt",
@@ -37,6 +39,7 @@
       "normallyHigh": false,
       "gpio": 22,
       "momentary": true,
+      "pull": "down",
       "reporters": [
         {
           "type": "mqtt",

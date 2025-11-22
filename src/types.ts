@@ -24,6 +24,7 @@ export interface MonitorConfig {
   normallyHigh: boolean;
   gpio: number;
   momentary?: boolean; // If true, only report when changing from normal state
+  pull?: "up" | "down"; // Pull-up/pull-down resistor configuration
   reporters: ReporterConfig[];
 }
 

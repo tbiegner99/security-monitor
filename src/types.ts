@@ -1,0 +1,39 @@
+/**
+ * Type definitions for the security monitor system
+ */
+
+export interface ReporterConfig {
+  type: string;
+  [key: string]: any;
+}
+
+export interface MqttReporterConfig extends ReporterConfig {
+  type: "mqtt";
+  broker: string;
+  topic: string;
+  username?: string;
+  password?: string;
+}
+
+export interface LogReporterConfig extends ReporterConfig {
+  type: "log";
+}
+
+export interface MonitorConfig {
+  name: string;
+  normallyHigh: boolean;
+  gpio: number;
+  reporters: ReporterConfig[];
+}
+
+export interface SecurityMonitorConfig {
+  monitors: MonitorConfig[];
+}
+
+export interface StateChangeEvent {
+  name: string;
+  gpio: number;
+  value: number;
+  state: "OPEN" | "CLOSED";
+  timestamp: Date;
+}

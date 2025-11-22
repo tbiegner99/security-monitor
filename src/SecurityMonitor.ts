@@ -102,6 +102,13 @@ export class SecurityMonitor {
     );
     console.log("Monitoring for GPIO state changes...\n");
 
+    // Report initial state for all monitors
+    console.log("Reporting initial states...");
+    for (const monitor of this.monitors) {
+      await monitor.reportCurrentState();
+    }
+    console.log("Initial state reporting complete\n");
+
     this.running = true;
   }
 

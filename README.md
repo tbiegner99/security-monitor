@@ -86,6 +86,7 @@ Create or edit `config.json` in the project root:
   - `"up"`: Enable internal pull-up resistor (pin pulled to 3.3V)
   - `"down"`: Enable internal pull-down resistor (pin pulled to GND)
   - `"none"`: No internal pull resistor (use external resistor)
+- `deviceClass` (string, optional): Home Assistant device class (`door`, `window`, `motion`, `garage_door`, `lock`, `opening`, etc.). If not specified, will be auto-detected from the monitor name.
 - `reporters` (array): List of reporter configurations
 
 #### Reporter Types

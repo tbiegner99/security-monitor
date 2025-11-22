@@ -96,6 +96,38 @@ export class GpioMonitor {
   }
 
   /**
+   * Report current state to all reporters
+   */
+  async reportCurrentState(): Promise<void> {
+    if (this.lastValue === null) {
+      return;
+    }
+
+    const state = this.getState(this.lastValue);
+    const event: StateChangeEvent = {
+      name: this.name,
+      gpio: this.gpioPin,
+      value: this.lastValue,
+      state: state,
+      timestamp: new Date(),
+    };
+
+    console.log(`Reporting initial state for ${this.name}: ${state}`);
+
+    // Report to all configured reporters
+    for (const reporter of this.reporters) {
+      try {
+        await reporter.report(event);
+      } catch (error) {
+        console.error(
+          `Error reporting initial state to ${reporter.constructor.name}:`,
+          error
+        );
+      }
+    }
+  }
+
+  /**
    * Get state description based on value and normallyHigh setting
    */
   private getState(value: number): "OPEN" | "CLOSED" {

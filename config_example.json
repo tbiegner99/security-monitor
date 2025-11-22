@@ -6,6 +6,7 @@
       "gpio": 17,
       "momentary": false,
       "pull": "up",
+      "deviceClass": "door",
       "reporters": [
         {
           "type": "mqtt",
@@ -40,6 +41,7 @@
       "gpio": 22,
       "momentary": true,
       "pull": "down",
+      "deviceClass": "motion",
       "reporters": [
         {
           "type": "mqtt",

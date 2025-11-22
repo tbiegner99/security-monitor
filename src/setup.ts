@@ -190,6 +190,17 @@ class SetupWizard {
       ? pullAnswer.toLowerCase() as "up" | "down"
       : "none";
 
+    console.log("\nHome Assistant Device Class (optional):");
+    console.log(
+      "  Specify device class for Home Assistant (door, window, motion, garage_door, etc.)"
+    );
+    console.log(
+      "  Leave blank to auto-detect from name"
+    );
+    const deviceClass = await this.question(
+      "Device class [blank for auto]: "
+    );
+
     const reporters = await this.configureReporters();
 
     const config: MonitorConfig = {
@@ -202,6 +213,10 @@ class SetupWizard {
 
     if (pull !== "none") {
       config.pull = pull as "up" | "down";
+    }
+
+    if (deviceClass) {
+      config.deviceClass = deviceClass;
     }
 
     return config;
@@ -318,6 +333,9 @@ class SetupWizard {
       console.log(`   Normally High: ${monitor.normallyHigh}`);
       console.log(`   Momentary: ${monitor.momentary ?? false}`);
       console.log(`   Pull: ${monitor.pull ?? "none"}`);
+      if (monitor.deviceClass) {
+        console.log(`   Device Class: ${monitor.deviceClass}`);
+      }
       console.log(
         `   Reporters: ${monitor.reporters.map((r) => r.type).join(", ")}`
       );

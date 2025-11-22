@@ -101,6 +101,12 @@ export class HomeAssistantIntegration {
    * Get device class based on monitor type
    */
   private getDeviceClass(monitor: MonitorConfig): string {
+    // Use explicitly configured device class if provided
+    if (monitor.deviceClass) {
+      return monitor.deviceClass;
+    }
+    
+    // Fall back to name-based detection
     const name = monitor.name.toLowerCase();
     
     if (name.includes("door")) return "door";

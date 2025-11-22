@@ -19,8 +19,10 @@ export class SecurityMonitor {
    */
   private async loadConfig(): Promise<SecurityMonitorConfig> {
     try {
+      console.log(`Loading configuration from ${this.configPath}`);
       const configData = await fs.readFile(this.configPath, "utf8");
       const config: SecurityMonitorConfig = JSON.parse(configData);
+      console.log(`Configuration loaded: ${JSON.stringify(config, null, 2)}`);
       return config;
     } catch (error) {
       const errorMessage =

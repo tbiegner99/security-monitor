@@ -161,12 +161,25 @@ class SetupWizard {
       true
     );
 
+    console.log("\nMomentary Configuration:");
+    console.log(
+      "  momentary: true  = Only report when pin changes FROM normal state (e.g., button press)"
+    );
+    console.log(
+      "  momentary: false = Report ALL state changes (both open and close)"
+    );
+    const momentary = await this.yesNo(
+      "Is this a momentary switch/button?",
+      false
+    );
+
     const reporters = await this.configureReporters();
 
     return {
       name,
       gpio,
       normallyHigh,
+      momentary,
       reporters,
     };
   }
@@ -206,6 +219,7 @@ class SetupWizard {
       console.log(`\n📍 ${monitor.name}`);
       console.log(`   GPIO: ${monitor.gpio}`);
       console.log(`   Normally High: ${monitor.normallyHigh}`);
+      console.log(`   Momentary: ${monitor.momentary ?? false}`);
       console.log(
         `   Reporters: ${monitor.reporters.map((r) => r.type).join(", ")}`
       );

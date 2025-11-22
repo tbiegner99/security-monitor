@@ -23,6 +23,7 @@ export interface MonitorConfig {
   name: string;
   normallyHigh: boolean;
   gpio: number;
+  momentary?: boolean; // If true, only report when changing from normal state
   reporters: ReporterConfig[];
 }
 

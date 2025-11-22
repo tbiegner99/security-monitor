@@ -11,6 +11,7 @@ export class GpioMonitor {
   private name: string;
   private gpioPin: number;
   private normallyHigh: boolean;
+  private momentary: boolean;
   private gpio: Gpio | null = null;
   private reporters: Reporter[] = [];
   private lastValue: number | null = null;
@@ -20,6 +21,7 @@ export class GpioMonitor {
     this.name = config.name;
     this.gpioPin = config.gpio;
     this.normallyHigh = config.normallyHigh;
+    this.momentary = config.momentary ?? false;
   }
 
   /**
@@ -38,10 +40,11 @@ export class GpioMonitor {
 
       // Read initial state
       this.lastValue = await this.readValue();
+      const modeStr = this.momentary ? " (momentary mode)" : "";
       console.log(
         `Initialized ${this.name} on GPIO ${
           this.gpioPin
-        }, initial state: ${this.getState(this.lastValue)}`
+        }, initial state: ${this.getState(this.lastValue)}${modeStr}`
       );
 
       // Set up watch for changes
@@ -94,6 +97,27 @@ export class GpioMonitor {
   }
 
   /**
+   * Check if this value change should be reported based on momentary setting
+   */
+  private shouldReport(value: number): boolean {
+    // If momentary is false, report all changes
+    if (!this.momentary) {
+      return true;
+    }
+
+    // If momentary is true, only report when changing FROM normal state TO abnormal state
+    if (this.normallyHigh) {
+      // Normal state is HIGH (1), abnormal is LOW (0)
+      // Only report when value is LOW (abnormal state)
+      return value === 0;
+    } else {
+      // Normal state is LOW (0), abnormal is HIGH (1)
+      // Only report when value is HIGH (abnormal state)
+      return value === 1;
+    }
+  }
+
+  /**
    * Handle GPIO value change
    */
   private async handleChange(value: number): Promise<void> {
@@ -103,6 +127,14 @@ export class GpioMonitor {
 
     this.lastValue = value;
     const state = this.getState(value);
+
+    // Check if we should report this change
+    if (!this.shouldReport(value)) {
+      console.log(
+        `${this.name}: GPIO ${this.gpioPin} returned to normal state (value: ${value}) - not reporting (momentary mode)`
+      );
+      return;
+    }
 
     const event: StateChangeEvent = {
       name: this.name,

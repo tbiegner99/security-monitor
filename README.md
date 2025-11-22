@@ -78,6 +78,9 @@ Create or edit `config.json` in the project root:
   - `true`: GPIO normally high (3.3V) when closed, goes low when open
   - `false`: GPIO normally low (0V) when closed, goes high when open
 - `gpio` (number): GPIO pin number (BCM numbering)
+- `momentary` (boolean, optional, default: `false`):
+  - `true`: Only report when GPIO changes FROM normal state (e.g., button press, motion detected)
+  - `false`: Report ALL state changes (both opening and closing)
 - `reporters` (array): List of reporter configurations
 
 #### Reporter Types
@@ -108,6 +111,8 @@ Publishes state changes to an MQTT broker.
 
 ## Running
 
+### Manual Start
+
 Start the security monitor:
 
 ```bash
@@ -118,6 +123,52 @@ Or specify a custom config file:
 
 ```bash
 node dist/index.js /path/to/config.json
+```
+
+### Install as Linux Service
+
+For production use on Linux systems (Raspberry Pi, etc.), install as a systemd service:
+
+```bash
+sudo ./install-service.sh
+```
+
+This will:
+
+- Build the project
+- Create a systemd service
+- Enable auto-start on boot
+- Configure proper logging
+
+**Service Management Commands:**
+
+```bash
+# Start the service
+sudo systemctl start security-monitor
+
+# Stop the service
+sudo systemctl stop security-monitor
+
+# Restart the service
+sudo systemctl restart security-monitor
+
+# Check service status
+sudo systemctl status security-monitor
+
+# View live logs
+sudo journalctl -u security-monitor -f
+
+# View recent logs
+sudo journalctl -u security-monitor -n 100
+
+# Disable auto-start
+sudo systemctl disable security-monitor
+```
+
+**Uninstall Service:**
+
+```bash
+sudo ./uninstall-service.sh
 ```
 
 ## Development
@@ -139,7 +190,7 @@ node dist/index.js
 1. **Initialization**: The application reads the configuration and initializes GPIO monitors for each configured pin
 2. **Monitoring**: Each monitor watches its GPIO pin for state changes using edge detection
 3. **State Detection**: When a pin changes state, the monitor determines if it's "OPEN" or "CLOSED" based on the `normallyHigh` setting
-4. **Reporting**: State changes are reported to all configured reporters (MQTT, logs, etc.)
+4. **Reporting**: State changes are reported to all configured reporters (MQTT, logs, etc.) based on the `momentary` setting
 5. **Cleanup**: On shutdown (Ctrl+C), all GPIO resources and connections are properly cleaned up
 
 ## State Logic
@@ -150,6 +201,28 @@ node dist/index.js
 - **normallyHigh: false**
   - GPIO value 0 (LOW) = CLOSED
   - GPIO value 1 (HIGH) = OPEN
+
+## Momentary vs. Continuous Monitoring
+
+### Continuous Mode (`momentary: false` - default)
+
+Reports **every** state change:
+
+- Door opens → Report sent ✅
+- Door closes → Report sent ✅
+
+Use for: Door/window sensors, switches that need both open and close notifications
+
+### Momentary Mode (`momentary: true`)
+
+Reports **only** when changing from normal state:
+
+- Button pressed (normallyHigh: true, goes LOW) → Report sent ✅
+- Button released (returns HIGH) → No report ❌
+- Motion detected (normallyHigh: false, goes HIGH) → Report sent ✅
+- Motion clears (returns LOW) → No report ❌
+
+Use for: Buttons, motion sensors, momentary switches, doorbells
 
 ## Event Format
 

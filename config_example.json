@@ -1,0 +1,49 @@
+{
+  "monitors": [
+    {
+      "name": "Front Door",
+      "normallyHigh": true,
+      "gpio": 17,
+      "momentary": false,
+      "reporters": [
+        {
+          "type": "mqtt",
+          "broker": "tcp://home-assistant:1883",
+          "topic": "home/security/frontdoor"
+        },
+        {
+          "type": "log"
+        }
+      ]
+    },
+    {
+      "name": "Doorbell Button",
+      "normallyHigh": true,
+      "gpio": 27,
+      "momentary": true,
+      "reporters": [
+        {
+          "type": "mqtt",
+          "broker": "tcp://home-assistant:1883",
+          "topic": "home/doorbell/pressed"
+        },
+        {
+          "type": "log"
+        }
+      ]
+    },
+    {
+      "name": "Motion Sensor",
+      "normallyHigh": false,
+      "gpio": 22,
+      "momentary": true,
+      "reporters": [
+        {
+          "type": "mqtt",
+          "broker": "tcp://home-assistant:1883",
+          "topic": "home/security/motion"
+        }
+      ]
+    }
+  ]
+}

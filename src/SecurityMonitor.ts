@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import { GpioMonitor } from "./GpioMonitor";
-import { SecurityMonitorConfig } from "./types";
+import { SecurityMonitorConfig, MonitorConfig } from "./types";
+import { HomeAssistantIntegration } from "./HomeAssistantIntegration";
 
 /**
  * Main Security Monitor application
@@ -9,6 +10,7 @@ export class SecurityMonitor {
   private configPath: string;
   private monitors: GpioMonitor[] = [];
   private running: boolean = false;
+  private homeAssistant: HomeAssistantIntegration | null = null;
 
   constructor(configPath: string) {
     this.configPath = configPath;
@@ -34,6 +36,19 @@ export class SecurityMonitor {
   }
 
   /**
+   * Get state topic for a monitor (used by MQTT reporters)
+   */
+  private getStateTopic(monitor: MonitorConfig): string {
+    // Find MQTT reporter in the monitor's reporters
+    const mqttReporter = monitor.reporters.find((r) => r.type === "mqtt");
+    if (mqttReporter && "topic" in mqttReporter) {
+      return mqttReporter.topic as string;
+    }
+    // Fallback topic
+    return `security-monitor/gpio_${monitor.gpio}/state`;
+  }
+
+  /**
    * Initialize all monitors from configuration
    */
   async initialize(): Promise<void> {
@@ -47,6 +62,26 @@ export class SecurityMonitor {
     }
 
     console.log(`Found ${config.monitors.length} monitor(s) to initialize`);
+
+    // Initialize Home Assistant integration if configured
+    if (config.homeAssistant?.enabled) {
+      console.log("\nInitializing Home Assistant integration...");
+      this.homeAssistant = new HomeAssistantIntegration(config.homeAssistant);
+      
+      try {
+        await this.homeAssistant.connect();
+        
+        // Publish discovery for all monitors
+        await this.homeAssistant.publishAllDiscoveries(
+          config.monitors,
+          (monitor) => this.getStateTopic(monitor)
+        );
+      } catch (error) {
+        console.error("Home Assistant integration failed:", error);
+        console.log("Continuing without Home Assistant integration...");
+        this.homeAssistant = null;
+      }
+    }
 
     // Create and initialize all monitors
     for (const monitorConfig of config.monitors) {
@@ -80,6 +115,11 @@ export class SecurityMonitor {
 
     console.log("\nShutting down Security Monitor...");
     this.running = false;
+
+    // Close Home Assistant integration first
+    if (this.homeAssistant) {
+      await this.homeAssistant.close();
+    }
 
     for (const monitor of this.monitors) {
       await monitor.cleanup();

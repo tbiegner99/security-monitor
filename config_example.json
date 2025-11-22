@@ -48,5 +48,13 @@
         }
       ]
     }
-  ]
+  ],
+  "homeAssistant": {
+    "enabled": true,
+    "broker": "tcp://home-assistant:1883",
+    "discoveryPrefix": "homeassistant",
+    "availabilityTopic": "security-monitor/availability",
+    "username": "mqtt_user",
+    "password": "mqtt_password"
+  }
 }

@@ -208,6 +208,77 @@ class SetupWizard {
   }
 
   /**
+   * Configure Home Assistant integration
+   */
+  private async configureHomeAssistant(): Promise<void> {
+    console.log("\n=== Home Assistant Integration ===");
+    console.log(
+      "Home Assistant integration enables automatic device discovery and availability reporting."
+    );
+
+    const enabled = await this.yesNo(
+      "Enable Home Assistant integration?",
+      false
+    );
+
+    if (!enabled) {
+      return;
+    }
+
+    const broker = await this.question(
+      "MQTT Broker URL (e.g., tcp://localhost:1883): "
+    );
+
+    const discoveryPrefix = await this.question(
+      "Discovery prefix [homeassistant]: "
+    );
+
+    const availabilityTopic = await this.question(
+      "Availability topic [security-monitor/availability]: "
+    );
+
+    const needsAuth = await this.yesNo(
+      "Does the broker require authentication?",
+      false
+    );
+
+    const config: any = {
+      enabled: true,
+      broker,
+    };
+
+    if (discoveryPrefix) {
+      config.discoveryPrefix = discoveryPrefix;
+    }
+
+    if (availabilityTopic) {
+      config.availabilityTopic = availabilityTopic;
+    }
+
+    if (needsAuth) {
+      const username = await this.question("Username: ");
+      const password = await this.question("Password: ");
+      config.username = username;
+      config.password = password;
+    }
+
+    const customDevice = await this.yesNo(
+      "Customize device name?",
+      false
+    );
+
+    if (customDevice) {
+      const deviceName = await this.question("Device name: ");
+      const deviceId = await this.question("Device ID: ");
+      if (deviceName) config.deviceName = deviceName;
+      if (deviceId) config.deviceId = deviceId;
+    }
+
+    this.config.homeAssistant = config;
+    console.log("✓ Home Assistant integration configured");
+  }
+
+  /**
    * Run the setup wizard
    */
   async run(): Promise<void> {
@@ -231,6 +302,9 @@ class SetupWizard {
       }
     }
 
+    // Configure Home Assistant integration
+    await this.configureHomeAssistant();
+
     // Show summary
     console.log("\n╔════════════════════════════════════════╗");
     console.log("║         Configuration Summary          ║");
@@ -246,6 +320,23 @@ class SetupWizard {
       console.log(`   Pull: ${monitor.pull ?? "none"}`);
       console.log(
         `   Reporters: ${monitor.reporters.map((r) => r.type).join(", ")}`
+      );
+    }
+
+    if (this.config.homeAssistant?.enabled) {
+      console.log("\n🏠 Home Assistant Integration:");
+      console.log(`   Enabled: Yes`);
+      console.log(`   Broker: ${this.config.homeAssistant.broker}`);
+      console.log(
+        `   Discovery Prefix: ${
+          this.config.homeAssistant.discoveryPrefix || "homeassistant"
+        }`
+      );
+      console.log(
+        `   Availability Topic: ${
+          this.config.homeAssistant.availabilityTopic ||
+          "security-monitor/availability"
+        }`
       );
     }
 

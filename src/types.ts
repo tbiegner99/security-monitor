@@ -28,8 +28,20 @@ export interface MonitorConfig {
   reporters: ReporterConfig[];
 }
 
+export interface HomeAssistantConfig {
+  enabled: boolean;
+  broker: string;
+  discoveryPrefix?: string; // Default: homeassistant
+  availabilityTopic?: string;
+  username?: string;
+  password?: string;
+  deviceName?: string;
+  deviceId?: string;
+}
+
 export interface SecurityMonitorConfig {
   monitors: MonitorConfig[];
+  homeAssistant?: HomeAssistantConfig;
 }
 
 export interface StateChangeEvent {

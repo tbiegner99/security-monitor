@@ -114,6 +114,42 @@ Logs state changes to the console.
 
 Publishes state changes to an MQTT broker.
 
+### Home Assistant Integration
+
+Enable automatic device discovery in Home Assistant:
+
+```json
+{
+  "homeAssistant": {
+    "enabled": true,
+    "broker": "tcp://home-assistant:1883",
+    "discoveryPrefix": "homeassistant",
+    "availabilityTopic": "security-monitor/availability",
+    "username": "optional",
+    "password": "optional",
+    "deviceName": "Security Monitor",
+    "deviceId": "security-monitor-device"
+  }
+}
+```
+
+**Options:**
+- `enabled` (boolean): Enable/disable Home Assistant integration
+- `broker` (string): MQTT broker URL
+- `discoveryPrefix` (string, optional): Discovery topic prefix (default: `homeassistant`)
+- `availabilityTopic` (string, optional): Availability status topic (default: `security-monitor/availability`)
+- `username` (string, optional): MQTT username
+- `password` (string, optional): MQTT password
+- `deviceName` (string, optional): Device name in Home Assistant
+- `deviceId` (string, optional): Unique device identifier
+
+**Features:**
+- 🔍 **Auto-discovery**: Sensors automatically appear in Home Assistant
+- 📊 **Device class detection**: Automatically sets appropriate device class (door, window, motion, etc.)
+- 💚 **Availability tracking**: Shows online/offline status
+- 📱 **Single device**: All sensors grouped under one device
+- 🔄 **Will message**: Sets offline status if connection lost
+
 ## Running
 
 ### Manual Start

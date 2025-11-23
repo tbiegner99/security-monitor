@@ -15,6 +15,7 @@ export class GpioMonitor {
   private gpio: Gpio | null = null;
   private reporters: Reporter[] = [];
   private lastValue: number | null = null;
+  private pollIntervalTimer: NodeJS.Timeout | null = null;
 
   constructor(config: MonitorConfig) {
     this.config = config;
@@ -68,6 +69,17 @@ export class GpioMonitor {
         this.handleChange(value);
       });
 
+      // Set up periodic polling if configured
+      if (this.config.pollIntervalSeconds && this.config.pollIntervalSeconds > 0) {
+        const intervalMs = this.config.pollIntervalSeconds * 1000;
+        console.log(
+          `Setting up periodic state reporting for ${this.name} every ${this.config.pollIntervalSeconds} seconds`
+        );
+        this.pollIntervalTimer = setInterval(() => {
+          this.reportCurrentState(true);
+        }, intervalMs);
+      }
+
       return true;
     } catch (error) {
       const errorMessage =
@@ -97,8 +109,9 @@ export class GpioMonitor {
 
   /**
    * Report current state to all reporters
+   * @param isPeriodic - If true, this is a periodic report rather than initial state
    */
-  async reportCurrentState(): Promise<void> {
+  async reportCurrentState(isPeriodic: boolean = false): Promise<void> {
     if (this.lastValue === null) {
       return;
     }
@@ -112,15 +125,22 @@ export class GpioMonitor {
       timestamp: new Date(),
     };
 
-    console.log(`Reporting initial state for ${this.name}: ${state}`);
+    if (isPeriodic) {
+      console.log(
+        `Periodic state report for ${this.name}: ${state} (value: ${this.lastValue})`
+      );
+    } else {
+      console.log(`Reporting initial state for ${this.name}: ${state}`);
+    }
 
     // Report to all configured reporters
     for (const reporter of this.reporters) {
       try {
         await reporter.report(event);
       } catch (error) {
+        const reportType = isPeriodic ? "periodic state" : "initial state";
         console.error(
-          `Error reporting initial state to ${reporter.constructor.name}:`,
+          `Error reporting ${reportType} to ${reporter.constructor.name}:`,
           error
         );
       }
@@ -213,6 +233,12 @@ export class GpioMonitor {
    */
   async cleanup(): Promise<void> {
     console.log(`Cleaning up ${this.name}...`);
+
+    // Clear periodic polling timer
+    if (this.pollIntervalTimer) {
+      clearInterval(this.pollIntervalTimer);
+      this.pollIntervalTimer = null;
+    }
 
     // Close all reporters
     for (const reporter of this.reporters) {

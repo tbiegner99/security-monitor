@@ -26,6 +26,7 @@ export interface MonitorConfig {
   momentary?: boolean; // If true, only report when changing from normal state
   pull?: "up" | "down"; // Pull-up/pull-down resistor configuration
   deviceClass?: string; // Home Assistant device class (door, window, motion, etc.)
+  pollIntervalSeconds?: number; // If set, periodically report state even without changes (useful for HA restarts)
   reporters: ReporterConfig[];
 }
 

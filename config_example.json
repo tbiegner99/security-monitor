@@ -7,6 +7,7 @@
       "momentary": false,
       "pull": "up",
       "deviceClass": "door",
+      "pollIntervalSeconds": 300,
       "reporters": [
         {
           "type": "mqtt",

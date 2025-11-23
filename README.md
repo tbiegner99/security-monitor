@@ -87,6 +87,7 @@ Create or edit `config.json` in the project root:
   - `"down"`: Enable internal pull-down resistor (pin pulled to GND)
   - `"none"`: No internal pull resistor (use external resistor)
 - `deviceClass` (string, optional): Home Assistant device class (`door`, `window`, `motion`, `garage_door`, `lock`, `opening`, etc.). If not specified, will be auto-detected from the monitor name.
+- `pollIntervalSeconds` (number, optional): If set, periodically reports the current state every X seconds, even if no GPIO state change occurred. This is useful to ensure Home Assistant (or other systems) have the correct state after a restart. Recommended value: 300 (5 minutes) for persistent sensors like doors/windows. Not recommended for momentary sensors.
 - `reporters` (array): List of reporter configurations
 
 #### Reporter Types
@@ -267,6 +268,41 @@ Reports **only** when changing from normal state:
 - Motion clears (returns LOW) → No report ❌
 
 Use for: Buttons, motion sensors, momentary switches, doorbells
+
+## Periodic State Reporting
+
+For persistent state sensors (doors, windows, etc.), you can enable periodic state reporting to ensure Home Assistant or other consumers always have the current state, even after a restart:
+
+```json
+{
+  "name": "Front Door",
+  "normallyHigh": true,
+  "gpio": 17,
+  "pollIntervalSeconds": 300,
+  "reporters": [...]
+}
+```
+
+### How It Works
+
+- The monitor will report its current state every `pollIntervalSeconds` seconds
+- This happens **in addition to** real-time state change reporting
+- Useful when Home Assistant restarts and needs to know the current state
+- Prevents stale "unavailable" states in Home Assistant
+
+### Recommended Settings
+
+- **Doors/Windows**: 300 seconds (5 minutes) - ensures HA knows state after restart
+- **Switches/Locks**: 300-600 seconds (5-10 minutes)
+- **Momentary sensors** (motion, buttons): Not recommended - state is only meaningful when triggered
+- **High-frequency sensors**: Consider disabling or using longer intervals to reduce traffic
+
+### Benefits
+
+✅ Home Assistant shows correct state after restart  
+✅ Recovers from missed state change events  
+✅ Provides heartbeat/health monitoring  
+✅ Minimal MQTT traffic with reasonable intervals
 
 ## Event Format
 

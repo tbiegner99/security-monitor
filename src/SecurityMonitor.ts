@@ -67,10 +67,10 @@ export class SecurityMonitor {
     if (config.homeAssistant?.enabled) {
       console.log("\nInitializing Home Assistant integration...");
       this.homeAssistant = new HomeAssistantIntegration(config.homeAssistant);
-      
+
       try {
         await this.homeAssistant.connect();
-        
+
         // Publish discovery for all monitors
         await this.homeAssistant.publishAllDiscoveries(
           config.monitors,

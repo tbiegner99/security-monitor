@@ -135,6 +135,7 @@ Enable automatic device discovery in Home Assistant:
 ```
 
 **Options:**
+
 - `enabled` (boolean): Enable/disable Home Assistant integration
 - `broker` (string): MQTT broker URL
 - `discoveryPrefix` (string, optional): Discovery topic prefix (default: `homeassistant`)
@@ -145,6 +146,7 @@ Enable automatic device discovery in Home Assistant:
 - `deviceId` (string, optional): Unique device identifier
 
 **Features:**
+
 - 🔍 **Auto-discovery**: Sensors automatically appear in Home Assistant
 - 📊 **Device class detection**: Automatically sets appropriate device class (door, window, motion, etc.)
 - 💚 **Availability tracking**: Shows online/offline status

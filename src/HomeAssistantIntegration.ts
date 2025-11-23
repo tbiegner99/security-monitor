@@ -19,7 +19,7 @@ export class HomeAssistantIntegration {
     this.discoveryPrefix = config.discoveryPrefix || "homeassistant";
     this.availabilityTopic =
       config.availabilityTopic || "security-monitor/availability";
-    this.deviceName = config.deviceName || `Security Monitor (${os.hostname()})`;
+    this.deviceName = config.deviceName || `Security Monitor`;
     this.deviceId = config.deviceId || `security-monitor-${os.hostname()}`;
   }
 
@@ -55,9 +55,7 @@ export class HomeAssistantIntegration {
       this.client!.on("connect", () => {
         clearTimeout(timeout);
         this.connected = true;
-        console.log(
-          `Home Assistant: Connected to ${broker}`
-        );
+        console.log(`Home Assistant: Connected to ${broker}`);
         this.publishAvailability("online");
         resolve();
       });
@@ -105,17 +103,17 @@ export class HomeAssistantIntegration {
     if (monitor.deviceClass) {
       return monitor.deviceClass;
     }
-    
+
     // Fall back to name-based detection
     const name = monitor.name.toLowerCase();
-    
+
     if (name.includes("door")) return "door";
     if (name.includes("window")) return "window";
     if (name.includes("motion")) return "motion";
     if (name.includes("garage")) return "garage_door";
     if (name.includes("lock")) return "lock";
     if (name.includes("opening")) return "opening";
-    
+
     // Default based on momentary setting
     return monitor.momentary ? "motion" : "opening";
   }
@@ -123,7 +121,10 @@ export class HomeAssistantIntegration {
   /**
    * Publish discovery configuration for a monitor
    */
-  async publishDiscovery(monitor: MonitorConfig, stateTopic: string): Promise<void> {
+  async publishDiscovery(
+    monitor: MonitorConfig,
+    stateTopic: string
+  ): Promise<void> {
     if (!this.connected || !this.client) {
       console.warn("Home Assistant: Not connected, skipping discovery");
       return;
@@ -131,7 +132,7 @@ export class HomeAssistantIntegration {
 
     const sensorId = this.getSensorId(monitor);
     const deviceClass = this.getDeviceClass(monitor);
-    
+
     // Binary sensor discovery topic
     const discoveryTopic = `${this.discoveryPrefix}/binary_sensor/${sensorId}/config`;
 

@@ -180,26 +180,21 @@ class SetupWizard {
     console.log(
       "  down = Enable internal pull-down resistor (pin pulled to GND)"
     );
-    console.log(
-      "  none = No internal pull resistor (use external resistor)"
-    );
+    console.log("  none = No internal pull resistor (use external resistor)");
     const pullAnswer = await this.question(
       "Pull resistor [up/down/none] (none): "
     );
-    const pull = pullAnswer.toLowerCase() === "up" || pullAnswer.toLowerCase() === "down" 
-      ? pullAnswer.toLowerCase() as "up" | "down"
-      : "none";
+    const pull =
+      pullAnswer.toLowerCase() === "up" || pullAnswer.toLowerCase() === "down"
+        ? (pullAnswer.toLowerCase() as "up" | "down")
+        : "none";
 
     console.log("\nHome Assistant Device Class (optional):");
     console.log(
       "  Specify device class for Home Assistant (door, window, motion, garage_door, etc.)"
     );
-    console.log(
-      "  Leave blank to auto-detect from name"
-    );
-    const deviceClass = await this.question(
-      "Device class [blank for auto]: "
-    );
+    console.log("  Leave blank to auto-detect from name");
+    const deviceClass = await this.question("Device class [blank for auto]: ");
 
     const reporters = await this.configureReporters();
 
@@ -277,10 +272,7 @@ class SetupWizard {
       config.password = password;
     }
 
-    const customDevice = await this.yesNo(
-      "Customize device name?",
-      false
-    );
+    const customDevice = await this.yesNo("Customize device name?", false);
 
     if (customDevice) {
       const deviceName = await this.question("Device name: ");

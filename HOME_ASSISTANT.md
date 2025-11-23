@@ -68,16 +68,16 @@ Minimal configuration requires only enabling and specifying the broker:
 
 ### Configuration Options
 
-| Option | Type | Required | Default | Description |
-|--------|------|----------|---------|-------------|
-| `enabled` | boolean | Yes | - | Enable/disable Home Assistant integration |
-| `broker` | string | Yes | - | MQTT broker URL (e.g., `tcp://192.168.1.100:1883`) |
-| `discoveryPrefix` | string | No | `homeassistant` | MQTT discovery topic prefix |
-| `availabilityTopic` | string | No | `security-monitor/availability` | Topic for online/offline status |
-| `username` | string | No | - | MQTT broker username |
-| `password` | string | No | - | MQTT broker password |
-| `deviceName` | string | No | `Security Monitor (hostname)` | Device name shown in Home Assistant |
-| `deviceId` | string | No | `security-monitor-hostname` | Unique device identifier |
+| Option              | Type    | Required | Default                         | Description                                        |
+| ------------------- | ------- | -------- | ------------------------------- | -------------------------------------------------- |
+| `enabled`           | boolean | Yes      | -                               | Enable/disable Home Assistant integration          |
+| `broker`            | string  | Yes      | -                               | MQTT broker URL (e.g., `tcp://192.168.1.100:1883`) |
+| `discoveryPrefix`   | string  | No       | `homeassistant`                 | MQTT discovery topic prefix                        |
+| `availabilityTopic` | string  | No       | `security-monitor/availability` | Topic for online/offline status                    |
+| `username`          | string  | No       | -                               | MQTT broker username                               |
+| `password`          | string  | No       | -                               | MQTT broker password                               |
+| `deviceName`        | string  | No       | `Security Monitor (hostname)`   | Device name shown in Home Assistant                |
+| `deviceId`          | string  | No       | `security-monitor-hostname`     | Unique device identifier                           |
 
 ## How It Works
 
@@ -95,25 +95,27 @@ When the security monitor starts with Home Assistant integration enabled:
 
 The integration automatically assigns appropriate device classes based on monitor names:
 
-| Monitor Name Contains | Device Class | Icon in HA |
-|----------------------|--------------|------------|
-| "door" | `door` | 🚪 |
-| "window" | `window` | 🪟 |
-| "motion" | `motion` | 🏃 |
-| "garage" | `garage_door` | 🚗 |
-| "lock" | `lock` | 🔒 |
-| "opening" | `opening` | 📂 |
-| (momentary: true) | `motion` | 🏃 |
-| (default) | `opening` | 📂 |
+| Monitor Name Contains | Device Class  | Icon in HA |
+| --------------------- | ------------- | ---------- |
+| "door"                | `door`        | 🚪         |
+| "window"              | `window`      | 🪟         |
+| "motion"              | `motion`      | 🏃         |
+| "garage"              | `garage_door` | 🚗         |
+| "lock"                | `lock`        | 🔒         |
+| "opening"             | `opening`     | 📂         |
+| (momentary: true)     | `motion`      | 🏃         |
+| (default)             | `opening`     | 📂         |
 
 ### Discovery Topics
 
 Discovery configurations are published to:
+
 ```
 {discoveryPrefix}/binary_sensor/{device_id}_gpio_{pin}/config
 ```
 
 Example:
+
 ```
 homeassistant/binary_sensor/security-monitor-rpi4_gpio_17/config
 ```
@@ -241,6 +243,7 @@ sudo journalctl -u security-monitor -f
 ```
 
 Look for:
+
 ```
 Home Assistant: Connected to tcp://home-assistant:1883
 Home Assistant: Discovery published for Front Door (door)
@@ -252,15 +255,18 @@ Home Assistant: Discovery published for Motion Sensor (motion)
 ### Sensors Not Appearing
 
 1. **Check MQTT broker connection:**
+
    - Verify broker URL is correct
    - Test credentials if using authentication
    - Ensure MQTT integration is set up in Home Assistant
 
 2. **Check discovery prefix:**
+
    - Default is `homeassistant`
    - If you changed it in Home Assistant, update config to match
 
 3. **Check logs:**
+
    ```bash
    sudo journalctl -u security-monitor -f
    ```
@@ -273,6 +279,7 @@ Home Assistant: Discovery published for Motion Sensor (motion)
 ### Availability Shows Offline
 
 1. **Check availability topic:**
+
    - Verify topic matches in configuration
    - Use MQTT client to check messages
 
@@ -284,6 +291,7 @@ Home Assistant: Discovery published for Motion Sensor (motion)
 ### Sensors Show Unknown State
 
 1. **Check MQTT reporters:**
+
    - Each monitor needs an MQTT reporter configured
    - State topic must match what Home Assistant expects
 
@@ -310,11 +318,13 @@ These customizations persist even if the monitor restarts.
 To remove the Home Assistant integration:
 
 1. **Stop the monitor:**
+
    ```bash
    sudo systemctl stop security-monitor
    ```
 
 2. **Remove from Home Assistant:**
+
    - Go to Settings → Devices & Services → MQTT
    - Find your device
    - Click "Delete" on the device
@@ -340,7 +350,7 @@ automation:
       - service: notify.mobile_app
         data:
           message: "Front door was opened!"
-          
+
   - alias: "Motion Detected at Night"
     trigger:
       - platform: state
